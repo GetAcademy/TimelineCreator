@@ -41,6 +41,11 @@ function previewTimeline(timelineId) {
     updateViewMain();
 }
 
-function goToViewTimeline(id) { console.log('TODO view', id); }
-function goToEditTimeline(id) { console.log('TODO edit', id); }
+function goToEditTimeline(id) { 
+    model.app.currentPage = 'edit';
+    model.app.activeTimelineId = id;
+    updateViewEdit();
+}
+
+
 function deleteTimeline(id) { console.log('TODO delete', id); }
