@@ -1,0 +1,113 @@
+.timeline-table .actions button {
+    margin: 0 .2rem;
+    cursor: pointer;
+}
+
+.timeline-table tr.selected {
+    background: #F3F4F6;
+}
+
+.timeline-preview-svg text {
+    font-family: sans-serif;
+}
+
+th {
+    cursor: pointer;
+}
+
+div.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* -------- Felles tabell­grunnlag -------- */
+.timeline-table,
+.edit-table {
+    border-collapse: collapse;
+    font-family: system-ui, sans-serif;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-table th,
+.timeline-table td,
+.edit-table th,
+.edit-table td {
+    padding: 0.45rem 0.8rem;
+    border: 1px solid #d1d5db;
+    /* lysegrå kant */
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+/* -------- Header -------- */
+.timeline-table thead,
+.edit-table thead {
+    background: #f3f4f6;
+    /* svak grå */
+    color: #111827;
+    /* mørk tekst */
+}
+
+.timeline-table th,
+.edit-table th {
+    user-select: none;
+    /* hindrer markering på klikk */
+    cursor: pointer;
+}
+
+/* -------- Rad­striping -------- */
+.timeline-table tbody tr:nth-child(odd),
+.edit-table tbody tr:nth-child(odd) {
+    background: #ffffff;
+}
+
+.timeline-table tbody tr:nth-child(even),
+.edit-table tbody tr:nth-child(even) {
+    background: #f9fafb;
+    /* ekstra lys grå */
+}
+
+/* -------- Hover- og valgt rad -------- */
+.timeline-table tbody tr:hover,
+.edit-table tbody tr:hover {
+    background: #eef2ff;
+    /* lavendel på hover */
+}
+
+.timeline-table tr.selected {
+    background: #dbeafe !important;
+    /* blå markering for aktiv rad */
+    font-weight: 600;
+}
+
+/* -------- Handling-knapper -------- */
+.actions button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px 6px;
+    line-height: 1;
+    border-radius: 4px;
+}
+
+.actions button:hover {
+    background: #e5e7eb;
+    /* lys grå bakgrunn på hover */
+}
+
+/* -------- Formularfelt i edit-tabellen -------- */
+.edit-table input[type="text"] {
+    width: 100%;
+    padding: 0.3rem 0.4rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.edit-table input[type="text"]:focus {
+    outline: 2px solid #4f46e5;
+    /* lilla fokusring */
+    border-color: transparent;
+}

@@ -7,8 +7,8 @@ function updateViewEdit() {
   const tl   = model.viewState.edit.timeline;
   const segs = tl.segments;
 
-  const rows = segs
-    .map((seg, i) => `
+  /* ---------- rader med segmenter ---------- */
+  const rows = segs.map((seg, i) => `
       <tr>
         <td style="width:60px;text-align:center">${seg.position}%</td>
         <td>
@@ -21,11 +21,28 @@ function updateViewEdit() {
           <button onclick="deleteSegment(${i})"   title="Slett">🗑️</button>
         </td>
       </tr>
-    `)
-    .join('');
+  `).join('');
 
+  /* ---------- bygg hele siden ---------- */
   document.getElementById('app').innerHTML = `
-    <h1>Rediger tidslinje: ${tl.title}</h1>
+    <h1>Rediger tidslinje</h1>
+
+    <section style="margin-bottom:1rem;display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <label> Tittel:<br>
+        <input type="text" value="${tl.title.replace(/"/g,'&quot;')}"
+               oninput="setTimelineTitle(this.value)" style="min-width:260px;">
+      </label>
+
+      <label> Spor-farge:<br>
+        <input type="color" value="${tl.trackColor}"
+               onchange="setTimelineTrackColor(this.value)">
+      </label>
+
+      <label> Tekst-farge:<br>
+        <input type="color" value="${tl.textColor}"
+               onchange="setTimelineTextColor(this.value)">
+      </label>
+    </section>
 
     <table class="edit-table">
       <thead>
@@ -42,16 +59,10 @@ function updateViewEdit() {
     </table>
 
     <div style="margin-top:1rem;">
-      <button onclick="saveTimeline()"    style="padding:.5rem 1rem;">💾 Lagre</button>
-      <button onclick="discardChanges()"  style="padding:.5rem 1rem;margin-left:.5rem;">
+      <button onclick="saveTimeline()"   style="padding:.5rem 1rem;">💾 Lagre</button>
+      <button onclick="discardChanges()" style="padding:.5rem 1rem;margin-left:.5rem;">
         ❌ Forkast
       </button>
     </div>
   `;
 }
-
-/* ========== LITT NY CSS (valgfritt) ========== */
-/*
-.edit-table input { width:100%; }
-.edit-table .actions button { margin:0 .2rem; }
-*/
