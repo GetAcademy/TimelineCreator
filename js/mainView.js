@@ -6,71 +6,83 @@ function formatDate(date) {
     day: '2-digit'
   });
 }
-/* ---------- helper: bygger et lite SVG-preview ---------- */
 function generateTimelinePreview(tl) {
   if (!tl) return '';
 
-  // Dimensjoner
   const margin = 20;
   const isHor  = tl.orientation === 'horizontal';
-  const span   = 400;               // lengde på sporet
-  const trackW = 6;                 // tykkelse på sporet
-  const r      = 8;                 // radius på punkter
+  const span   = 400;
+  const trackW = 6;
+  const r      = 8;
 
-  // Størrelse på SVG-boksen
-  const w = isHor ? span + margin * 2 : 120;
+  const w = isHor ? span + margin * 2 : 140;        // litt bredere plass for tekst
   const h = isHor ? 120 : span + margin * 2;
 
-  // Funksjon for å mappe position (0-100 %) til X/Y-koordinat
   const posToCoord = p =>
     isHor
       ? { x: margin + (p / 100) * span, y: h / 2 }
-      : { x: w / 2, y: margin + (p / 100) * span };
+      : { x: 40,                         y: margin + (p / 100) * span };
 
-  // Selve SVG-strengen
   const lineStart = posToCoord(0);
   const lineEnd   = posToCoord(100);
 
-  const segmentsSvg = tl.segments
-    .map(seg => {
-      const { x, y } = posToCoord(seg.position);
-      const fill = seg.color || tl.textColor;
-      return `
+  const segmentsSvg = tl.segments.map(seg => {
+    const { x, y } = posToCoord(seg.position);
+    const fill = seg.color || tl.textColor;
+    return isHor
+      ? `
         <circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>
-        <text x="${x}" y="${isHor ? y - 15 : x + 15}" text-anchor="middle"
-              font-size="12" fill="${tl.textColor}">${seg.label}</text>
-      `;
-    })
-    .join('');
+        <text x="${x}" y="${y - 15}" text-anchor="middle"
+              font-size="12" fill="${tl.textColor}">${seg.label}</text>`
+      : `
+        <circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>
+        <text x="${x + 15}" y="${y + 4}" text-anchor="start"
+              font-size="12" fill="${tl.textColor}">${seg.label}</text>`;
+  }).join('');
 
   return `
     <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"
          xmlns="http://www.w3.org/2000/svg" class="timeline-preview-svg">
-      <${isHor ? 'line' : 'line'}
-        x1="${lineStart.x}" y1="${lineStart.y}"
-        x2="${lineEnd.x}"   y2="${lineEnd.y}"
-        stroke="${tl.trackColor}" stroke-width="${trackW}" />
+      <line x1="${lineStart.x}" y1="${lineStart.y}"
+            x2="${lineEnd.x}"   y2="${lineEnd.y}"
+            stroke="${tl.trackColor}" stroke-width="${trackW}" />
       ${segmentsSvg}
     </svg>
   `;
 }
 
-/* ------------ Rask SVG-forhåndsvisning ------------ */
-//  (samme generateTimelinePreview som tidligere)
 
 function updateViewMain() {
-  const sortBy = model.viewState.main.sortBy || 'title';
+  const vs      = model.viewState.main;
+  const dirMul  = vs.sortDir === 'asc' ? 1 : -1;
 
-  // 1. Sorter kopien
+  /* ----------  sorter kopien  ---------- */
   const timelines = [...model.timelines].sort((a, b) => {
-    switch (sortBy) {
-      case 'created': return new Date(a.createdAt) - new Date(b.createdAt);
-      case 'updated': return new Date(b.updatedAt) - new Date(a.updatedAt);
-      default:        return a.title.localeCompare(b.title);
-    }
+    const val = {
+      title:       () => a.title.localeCompare(b.title),
+      created:     () => new Date(a.createdAt) - new Date(b.createdAt),
+      updated:     () => new Date(a.updatedAt) - new Date(b.updatedAt),
+      orientation: () => a.orientation.localeCompare(b.orientation),
+      count:       () => a.segments.length - b.segments.length,
+    }[vs.sortBy]();
+    return val * dirMul;
   });
 
-  // 2. Bygg tabellrader
+  /* ----------  bygg tabellhoder med piler  ---------- */
+  const headerCols = [
+    { key: 'title',       label: 'Tittel'      },
+    { key: 'created',     label: 'Opprettet'   },
+    { key: 'updated',     label: 'Endret'      },
+    { key: 'orientation', label: 'Orient.'     },
+    { key: 'count',       label: '#'           },
+  ];
+
+  const thHtml = headerCols.map(c => {
+    const arrow = vs.sortBy === c.key ? (vs.sortDir === 'asc' ? '▲' : '▼') : '';
+    return `<th onclick="setSort('${c.key}')">${c.label} ${arrow}</th>`;
+  }).join('') + '<th>Handlinger</th>';
+
+  /* ----------  tabellrader  ---------- */
   const rowsHtml = timelines.map(tl => `
     <tr ${model.app.activeTimelineId === tl.id ? 'class="selected"' : ''}>
       <td>${tl.title}</td>
@@ -80,40 +92,31 @@ function updateViewMain() {
       <td style="text-align:center">${tl.segments.length}</td>
       <td class="actions">
         <button onclick="previewTimeline('${tl.id}')" title="Forhåndsvis">👁️</button>
-        <button onclick="goToViewTimeline('${tl.id}')" title="Åpne visning">Vis</button>
+        <button onclick="goToViewTimeline('${tl.id}')" title="Vis">Vis</button>
         <button onclick="goToEditTimeline('${tl.id}')" title="Rediger">Rediger</button>
         <button onclick="deleteTimeline('${tl.id}')" title="Slett">🗑️</button>
       </td>
     </tr>
   `).join('');
 
-  // 3. Forhåndsvisning
-  const active = timelines.find(tl => tl.id === model.app.activeTimelineId);
-  const previewHtml = active
-    ? `<h2>Forhåndsvisning: ${active.title}</h2>${generateTimelinePreview(active)}`
-    : '<p>Velg «👁️» for å forhåndsvise en tidslinje.</p>';
+  /* ----------  forhåndsvisning  ---------- */
+  const active   = timelines.find(tl => tl.id === model.app.activeTimelineId);
+  const preview  = active ? generateTimelinePreview(active)
+                          : '<p>Velg «👁️» for å forhåndsvise.</p>';
+  const isVert   = active && active.orientation === 'vertical';
 
-  // 4. Render inn i #app
-  document.getElementById('app').innerHTML = `
-    ${previewHtml}
-
+  /* ----------  render  ---------- */
+  const table = `
     <h1>Mine tidslinjer</h1>
-
     <table class="timeline-table">
-      <thead>
-        <tr>
-          <th onclick="setSort('title')">Tittel ▲</th>
-          <th onclick="setSort('created')">Opprettet</th>
-          <th onclick="setSort('updated')">Endret</th>
-          <th>Orient.</th>
-          <th>#</th>
-          <th>Handlinger</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
-    </table>
-  `;
-}
+      <thead><tr>${thHtml}</tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>`;
 
+  document.getElementById('app').innerHTML = isVert
+    ? `<div style="display:flex;gap:2rem;align-items:flex-start;">
+         <div>${preview}</div>
+         <div style="flex:1;">${table}</div>
+       </div>`
+    : `${preview}${table}`;
+}
