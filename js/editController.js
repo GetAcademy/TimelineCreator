@@ -1,10 +1,5 @@
 /* ========== HELPERS ========== */
 
-// Deep-clone (enkelt i trinn 1)
-function clone(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
 // Gjør en jevn ny beregning av position-feltene etter hver endring
 function recalcPositions(segArr) {
   const n = segArr.length;
@@ -20,7 +15,7 @@ function ensureEditCopy() {
   const copy = model.viewState.edit.timeline;
   if (!copy || copy.id !== id) {
     const original = model.timelines.find(t => t.id === id);
-    model.viewState.edit.timeline = clone(original);
+    model.viewState.edit.timeline = structuredClone(original);
   }
 }
 
@@ -62,7 +57,7 @@ function saveTimeline() {
   if (index === -1) return alert('Ukjent tidslinje');
 
   // kopier arbeidskopi → hovedmodell
-  model.timelines[index] = clone(model.viewState.edit.timeline);
+  model.timelines[index] = structuredClone (model.viewState.edit.timeline);
   model.timelines[index].updatedAt = new Date().toISOString();
 
   model.app.currentPage = 'main';
