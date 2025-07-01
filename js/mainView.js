@@ -115,8 +115,8 @@ function updateViewMain() {
 
   document.getElementById('app').innerHTML = isVert
     ? `<div style="display:flex;gap:2rem;align-items:flex-start;">
-         <div>${preview}</div>
-         <div style="flex:1;">${table}</div>
+        <div style="flex:1;">${table}</div>
+        <div>${preview}</div>
        </div>`
-    : `${preview}${table}`;
+    : table + preview;
 }
