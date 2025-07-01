@@ -13,7 +13,7 @@ function updateViewEdit() {
         <td style="width:60px;text-align:center">${seg.position}%</td>
         <td>
           <input type="text" value="${seg.label.replace(/"/g,'&quot;')}"
-                 oninput="editSegmentLabel(${i}, this.value)" />
+                 oninput="editSegmentLabel(${i}, this.value)">
         </td>
         <td class="actions">
           <button onclick="moveSegmentUp(${i})"   title="Opp">▲</button>
@@ -28,17 +28,17 @@ function updateViewEdit() {
     <h1>Rediger tidslinje</h1>
 
     <section style="margin-bottom:1rem;display:flex;gap:1.5rem;flex-wrap:wrap;">
-      <label> Tittel:<br>
+      <label>Tittel:<br>
         <input type="text" value="${tl.title.replace(/"/g,'&quot;')}"
-               oninput="setTimelineTitle(this.value)" style="min-width:260px;">
+               oninput="setTimelineTitle(this.value)" style="min-width:260px">
       </label>
 
-      <label> Spor-farge:<br>
+      <label>Spor-farge:<br>
         <input type="color" value="${tl.trackColor}"
                onchange="setTimelineTrackColor(this.value)">
       </label>
 
-      <label> Tekst-farge:<br>
+      <label>Tekst-farge:<br>
         <input type="color" value="${tl.textColor}"
                onchange="setTimelineTextColor(this.value)">
       </label>
@@ -48,19 +48,17 @@ function updateViewEdit() {
       <thead>
         <tr><th>%</th><th>Tekst</th><th>Handlinger</th></tr>
       </thead>
-      <tbody>
-        ${rows}
-        <tr>
-          <td colspan="3" style="text-align:center">
-            <button onclick="addSegment()">+ Legg til punkt</button>
-          </td>
-        </tr>
-      </tbody>
+      <tbody>${rows}</tbody>
     </table>
 
-    <div style="margin-top:1rem;">
-      <button onclick="saveTimeline()"   style="padding:.5rem 1rem;">💾 Lagre</button>
-      <button onclick="discardChanges()" style="padding:.5rem 1rem;margin-left:.5rem;">
+    <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+      <button onclick="addSegment()"    style="padding:.5rem 1rem;">
+        ➕ Legg til punkt
+      </button>
+      <button onclick="saveTimeline()"  style="padding:.5rem 1rem;">
+        💾 Lagre
+      </button>
+      <button onclick="discardChanges()" style="padding:.5rem 1rem;">
         ❌ Forkast
       </button>
     </div>
