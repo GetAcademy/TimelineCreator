@@ -9,26 +9,31 @@ function formatDate(date) {
 function generateTimelinePreview(tl) {
   if (!tl) return '';
 
-  const margin = 20;
-  const isHor  = tl.orientation === 'horizontal';
-  const span   = 400;
-  const trackW = 6;
-  const r      = 8;
+  /* --- padding og dimensjoner --- */
+  const isHor   = tl.orientation === 'horizontal';
+  const sidePad = isHor ? 60 : 20;   //  ←  mer rom venstre/høyre
+  const span    = 400;               // lengden selve sporet skal dekke
+  const trackW  = 6;
+  const r       = 8;
 
-  const w = isHor ? span + margin * 2 : 140;        // litt bredere plass for tekst
-  const h = isHor ? 120 : span + margin * 2;
+  /* viewBox-størrelse */
+  const w = isHor ? span + sidePad * 2 : 140;
+  const h = isHor ? 120               : span + sidePad * 2;
 
+  /* 0–100 %  →  x,y  */
   const posToCoord = p =>
     isHor
-      ? { x: margin + (p / 100) * span, y: h / 2 }
-      : { x: 40,                         y: margin + (p / 100) * span };
+      ? { x: sidePad + (p / 100) * span, y: h / 2 }
+      : { x: 40,                         y: sidePad + (p / 100) * span };
 
-  const lineStart = posToCoord(0);
-  const lineEnd   = posToCoord(100);
+  const start = posToCoord(0);
+  const end   = posToCoord(100);
 
+  /* punkter + etiketter */
   const segmentsSvg = tl.segments.map(seg => {
     const { x, y } = posToCoord(seg.position);
     const fill = seg.color || tl.textColor;
+
     return isHor
       ? `
         <circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>
@@ -40,16 +45,18 @@ function generateTimelinePreview(tl) {
               font-size="12" fill="${tl.textColor}">${seg.label}</text>`;
   }).join('');
 
+  /* full SVG-streng */
   return `
     <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"
          xmlns="http://www.w3.org/2000/svg" class="timeline-preview-svg">
-      <line x1="${lineStart.x}" y1="${lineStart.y}"
-            x2="${lineEnd.x}"   y2="${lineEnd.y}"
+      <line x1="${start.x}" y1="${start.y}"
+            x2="${end.x}"   y2="${end.y}"
             stroke="${tl.trackColor}" stroke-width="${trackW}" />
       ${segmentsSvg}
     </svg>
   `;
 }
+
 
 
 function updateViewMain() {
