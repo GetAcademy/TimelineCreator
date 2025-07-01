@@ -14,13 +14,6 @@ function formatDate(date) {
   });
 }
 
-// Endre sorteringsfelt i viewState og rerender tabellen
-function setSort(key) {
-  model.viewState.main.sortBy = key;
-  updateViewMain();
-}
-
-/* ----------  MAIN PAGE RENDERER  ---------- */
 
 function updateViewMain() {
   const sortBy = model.viewState.main.sortBy || 'title';
@@ -43,6 +36,7 @@ function updateViewMain() {
         <td>${formatDate(tl.updatedAt)}</td>
         <td>${tl.orientation}</td>
         <td style="text-align:center">${tl.segments.length}</td>
+        <td><button onclick="previewTimeline('${tl.id}')">Vis</button></td>
       </tr>
     `)
     .join('');
@@ -59,6 +53,7 @@ function updateViewMain() {
           <th onclick="setSort('updated')">Endret</th>
           <th>Orient.</th>
           <th>#</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -71,7 +66,3 @@ function updateViewMain() {
   `;
 }
 
-/* ----------  init  ---------- */
-
-model.viewState.main.sortBy = 'title';   // start med alfabetisk
-updateViewMain();
